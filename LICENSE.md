@@ -1,7 +1,7 @@
 ﻿Copyright 2013 The-Master777
 ----------------------------
 
-*Lizenziert unter der EUPL, Version 1.1* oder - sobald diese von der Europäischen Kommission genehmigt wurden - Folgeversionen der EUPL ("Lizenz"); Sie dürfen dieses Werk ausschließlich gemäß dieser Lizenz nutzen.
+**Lizenziert unter der EUPL, Version 1.1** oder - sobald diese von der Europäischen Kommission genehmigt wurden - Folgeversionen der EUPL ("Lizenz"); Sie dürfen dieses Werk ausschließlich gemäß dieser Lizenz nutzen.
 
 Eine Kopie der Lizenz finden Sie hier: http://joinup.ec.europa.eu/software/page/eupl
 
@@ -13,7 +13,7 @@ Diese "LICENSE.md" Datei ist Teil der Verbreitung.
 Copyright 2013 The-Master777
 ----------------------------
 
-*Licensed under the EUPL, Version 1.1* or - as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work except in compliance with the Licence.
+**Licensed under the EUPL, Version 1.1** or - as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work except in compliance with the Licence.
 
 You may obtain a copy of the Licence at: http://joinup.ec.europa.eu/software/page/eupl
 
