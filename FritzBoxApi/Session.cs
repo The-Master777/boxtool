@@ -33,7 +33,7 @@ namespace FritzBoxApi {
     }
     
     /// <summary>
-    /// Provides access to Fritz!Box web api functions
+    /// Provides access to Fritz!Box web api functions for Fritz!OS 5.50 (or newer)
     /// </summary>
     public class Session {
         /// <summary>
@@ -46,11 +46,23 @@ namespace FritzBoxApi {
         /// </summary>
         public String Password { get; set; }
 
+		/// <summary>
+		/// Username
+		/// </summary>
+		public String Username { get; set; }
+
         /// <summary>
         /// Fritz!Box-Id of the session
         /// </summary>
         public SessionId Id { get; protected set; }
 
+		/*
+		 * Docs:
+		 * -----
+		 * 
+		 * [17.12.2012] http://www.avm.de/de/Extern/files/session_id/AVM_Technical_Note_-_Session_ID.pdf
+		 * [14.05.2009] http://www.avm.de/de/Extern/Technical_Note_Session_ID.pdf
+		 */
         public class SessionId: IEquatable<SessionId> {
             public String Value { get; protected set; }
 
@@ -173,6 +185,7 @@ namespace FritzBoxApi {
         public Boolean AutoReconnect { get; set; }
 
         protected const String DEFAULT_HOSTNAME = @"fritz.box";
+		protected const String DEFAULT_USERNAME = null;
         protected const String HTTP_HOST_FORMAT = "http://{0}/";
 
         /// <summary>
@@ -183,27 +196,46 @@ namespace FritzBoxApi {
         }
 
         /// <summary>
-        /// Creates a new Session with given login-cretendial and specific host address
+        /// Creates a new Session with given login-password and specific host address
         /// </summary>
         /// <param name="host">The host address</param>
         /// <param name="password">The api password</param>
-        public Session(String host, String password): this(new Uri(String.Format(HTTP_HOST_FORMAT, host)), password) {
+		public Session(String host, String password): this(host, DEFAULT_USERNAME, password) {
         }
 
+		/// <summary>
+		/// Creates a new Session with given login-cretendial and specific host address
+		/// </summary>
+		/// <param name="host">The host address</param>
+		/// <param name="username">The username</param>
+		/// <param name="password">The api password</param>
+		public Session(String host, String username, String password): this(new Uri(String.Format(HTTP_HOST_FORMAT, host)), username, password) {
+		}
+
         /// <summary>
-        /// Creates a new Session with given login-cretendial and specific host uri
+        /// Creates a new Session with given login-password and specific host uri
         /// </summary>
         /// <param name="host">The host uri</param>
         /// <param name="password">The api password</param>
-        public Session(Uri host, String password) {
-            Id = SessionId.Invalid;
-            Host = host;
-            Password = password;
-
-            IdleTimeout = DEFAULT_IDLE_TIMEOUT;
-
-            LastActionTime = DateTime.MinValue;
+		public Session(Uri host, String password): this(host, DEFAULT_USERNAME, password){
         }
+
+		/// <summary>
+		/// Creates a new Session with given login-cretendial and specific host uri
+		/// </summary>
+		/// <param name="host">The host uri</param>
+		/// <param name="username">The username</param>
+		/// <param name="password">The api password</param>
+		public Session(Uri host, String username, String password) {
+			Id = SessionId.Invalid;
+			Host = host;
+			Username = username;
+			Password = password;
+
+			IdleTimeout = DEFAULT_IDLE_TIMEOUT;
+
+			LastActionTime = DateTime.MinValue;
+		}
 
         /// <summary>
         /// Asynchronously invalidates the current session state
@@ -225,11 +257,14 @@ namespace FritzBoxApi {
         protected const String FIELD_NAME_SID = @"SID";
         protected const String FIELD_NAME_CHALLENGE = @"Challenge";
         protected const String ARG_NAME_RESPONSE = @"response";
+		protected const String ARG_NAME_USERNAME = @"username";
 
         /// <summary>
         /// Asynchronously start a new api session 
         /// </summary>
         public async Task LoginAsync(CancellationToken ct) {
+			ct.ThrowIfCancellationRequested();
+
             // Request login challange
             XmlDocument xml = await ReadSessionDataAsync(Id, ct);
 
@@ -250,6 +285,9 @@ namespace FritzBoxApi {
             var uri = new Uri(Host, URL_LOGIN);
             var request = (HttpWebRequest)WebRequest.Create(uri);
             var responseArgs = new Dictionary<String, String> { { ARG_NAME_RESPONSE, responseString } };
+
+			if(!String.IsNullOrEmpty(Username))
+				responseArgs.Add(ARG_NAME_USERNAME, Username);
           
             // Quit this method if already cancelled
             ct.ThrowIfCancellationRequested();
@@ -564,6 +602,7 @@ namespace FritzBoxApi {
         /// Asynchonously execute commands
         /// </summary>
         /// <param name="commands">The commands to execute</param>
+        /// <param name="ct">The cancellation token used to cancel this operation</param>
         /// <returns>The api response-text</returns>
         public async Task<String> SendCommandsAsync(IEnumerable<KeyValuePair<String, String>> commands, CancellationToken ct) {
             await ForceSessionAsync(ct);
@@ -689,8 +728,9 @@ namespace FritzBoxApi {
         /// <summary>
         /// Asynchonously reads XML content from the stream given
         /// </summary>
-        /// <param name="stream"></param>
-        /// <returns></returns>
+        /// <param name="stream">The stream to read</param>
+        /// <param name="ct">The cancellation token used to cancel this operation</param>
+        /// <returns>A xml document object</returns>
         protected static async Task<XmlDocument> ReadXmlFromStreamAsync(Stream stream, CancellationToken ct) {
             String xmlString = await ReadStream(stream, Encoding.UTF8, true, ct); 
 

@@ -4,29 +4,36 @@ using System.Threading.Tasks;
 
 namespace FritzBoxApi {
     /// <summary>
-    /// The class FritzBox provices quick access to a newly created session.
+    /// The class FritzBox provices quick access to a newly created for Fritz!OS 5.50 (or newer).
     /// </summary>
     public static class FritzBox {
         /// <summary>
-        /// Asynchronously connect to Fritz!Box api at the host, authenticated with given password
+        /// Asynchronously connect to Fritz!Box api at the host, authenticated only with given password
         /// </summary>
-        /// <param name="host"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
+        /// <param name="host">The host address</param>
+        /// <param name="password">The password</param>
+        /// <returns>An api session</returns>
         public static async Task<Session> ConnectAsync(String host, String password, CancellationToken ct) {
             var session = new Session(host, password);
-
-            ct.ThrowIfCancellationRequested();
 
             await session.LoginAsync(ct);
 
             return session;
         }
+		
+		/// <summary>
+		/// Asynchronously connect to Fritz!Box api at the host, authenticated only with a login credential consisting of a username / password combination
+		/// </summary>
+		/// <param name="host">The host address</param>
+		/// <param name="username">The username</param>
+		/// <param name="password">The password</param>
+		/// <returns>An api session</returns>
+		public static async Task<Session> ConnectAsync(String host, String username, String password, CancellationToken ct) {
+			var session = new Session(host, username, password);
 
-        /*
-        public static Session Connect(String host, String password) {
-            return ConnectAsync(host, password).Result;
-        }
-        */
+			await session.LoginAsync(ct);
+
+			return session;
+		}
     }
 }
