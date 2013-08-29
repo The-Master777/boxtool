@@ -12,6 +12,7 @@ namespace FritzBoxApi {
         /// </summary>
         /// <param name="host">The host address</param>
         /// <param name="password">The password</param>
+        /// <param name="ct">The cancellation token used to cancel this operation</param>
         /// <returns>An api session</returns>
         public static async Task<Session> ConnectAsync(String host, String password, CancellationToken ct) {
             var session = new Session(host, password);
@@ -20,15 +21,16 @@ namespace FritzBoxApi {
 
             return session;
         }
-		
-		/// <summary>
-		/// Asynchronously connect to Fritz!Box api at the host, authenticated only with a login credential consisting of a username / password combination
-		/// </summary>
-		/// <param name="host">The host address</param>
-		/// <param name="username">The username</param>
-		/// <param name="password">The password</param>
-		/// <returns>An api session</returns>
-		public static async Task<Session> ConnectAsync(String host, String username, String password, CancellationToken ct) {
+
+        /// <summary>
+        /// Asynchronously connect to Fritz!Box api at the host, authenticated only with a login credential consisting of a username / password combination
+        /// </summary>
+        /// <param name="host">The host address</param>
+        /// <param name="username">The username</param>
+        /// <param name="password">The password</param>
+        /// <param name="ct">The cancellation token used to cancel this operation</param>
+        /// <returns>An api session</returns>
+        public static async Task<Session> ConnectAsync(String host, String username, String password, CancellationToken ct) {
 			var session = new Session(host, username, password);
 
 			await session.LoginAsync(ct);
