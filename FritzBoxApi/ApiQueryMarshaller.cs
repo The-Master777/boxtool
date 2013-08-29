@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using FritzBoxApi.Extensions;
 
 namespace FritzBoxApi {
     /// <summary>
@@ -147,7 +146,7 @@ namespace FritzBoxApi {
             var queryParameterProps = members.Where(x => Attribute.IsDefined(x, typeof(QueryParameterAttribute), true));
 
             // C.2) Build query list
-            var d = queryParameterProps.Select(m => new QueryParameterPropertyRecord(@object, m.GetCustomAttribute<QueryParameterAttribute>(), m, converters));
+            var d = queryParameterProps.Select(m => new QueryParameterPropertyRecord(@object, m.GetCustomAttribute<QueryParameterAttribute>(), m, converters)); // ??! maybe use inherit option when calling GetCustomAttribute?
 
             qpprList.AddRange(d);
 
@@ -269,12 +268,13 @@ namespace FritzBoxApi {
         /// </summary>
         /// <param name="converters">The known converters</param>
         /// <param name="converter">The missing converter</param>
-        public ConverterNotFoundException(Dictionary<String, Func<String, object>> converters, String converter)
-            : base(String.Format(MESSAGE, converter)) {
+        public ConverterNotFoundException(Dictionary<String, Func<String, object>> converters, String converter): base(String.Format(MESSAGE, converter)) {
             Converters = converters;
             Converter = converter;
         }
     }
+
+    #region Attributes
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class QueryValueConverter : Attribute {
@@ -305,4 +305,6 @@ namespace FritzBoxApi {
 
     public class QueryPropagationAttribute: Attribute {
     }
+
+    #endregion
 }

@@ -13,29 +13,13 @@ using System.Xml;
 using FritzBoxApi.Extensions;
 
 namespace FritzBoxApi {
-
-    /// <summary>
-    /// The LoginFailedException is an exception to be thrown if the login-process fails.
-    /// </summary>
-    public class LoginFailedException: Exception {
-        protected const String MESSAGE = "The login to Fritz!Box-API has failed";
-
-        public LoginFailedException(): base(MESSAGE) {
-        }
-    }
-
-    /// <summary>
-    /// The InvalidSessionException is an exception to be thrown if the session is invalid, e.g. if rejected by Fritz!Box-Api.
-    /// </summary>
-    public class InvalidSessionException: Exception {
-        public InvalidSessionException(String message): base(message) {
-        }
-    }
-    
     /// <summary>
     /// Provides access to Fritz!Box web api functions for Fritz!OS 5.50 (or newer)
     /// </summary>
     public class Session {
+
+        #region Fields
+
         /// <summary>
         /// IP-Address or Hostname of the Fritz!Box
         /// </summary>
@@ -46,10 +30,10 @@ namespace FritzBoxApi {
         /// </summary>
         public String Password { get; set; }
 
-		/// <summary>
-		/// Username
-		/// </summary>
-		public String Username { get; set; }
+        /// <summary>
+        /// Username
+        /// </summary>
+        public String Username { get; set; }
 
         /// <summary>
         /// Fritz!Box-Id of the session
@@ -81,8 +65,12 @@ namespace FritzBoxApi {
         /// </summary>
         protected readonly Lazy<ApiQueryMarshaller> ObjectQueryMarshaller;
 
+        #endregion
+
+        #region Constructors
+
         protected const String DEFAULT_HOSTNAME = @"fritz.box";
-		protected const String DEFAULT_USERNAME = null;
+        protected const String DEFAULT_USERNAME = null;
         protected const String HTTP_HOST_FORMAT = "http://{0}/";
 
         /// <summary>
@@ -97,44 +85,48 @@ namespace FritzBoxApi {
         /// </summary>
         /// <param name="host">The host address</param>
         /// <param name="password">The api password</param>
-		public Session(String host, String password): this(host, DEFAULT_USERNAME, password) {
+        public Session(String host, String password): this(host, DEFAULT_USERNAME, password) {
         }
 
-		/// <summary>
-		/// Creates a new Session with given login-cretendial and specific host address
-		/// </summary>
-		/// <param name="host">The host address</param>
-		/// <param name="username">The username</param>
-		/// <param name="password">The api password</param>
-		public Session(String host, String username, String password): this(new Uri(String.Format(HTTP_HOST_FORMAT, host)), username, password) {
-		}
+        /// <summary>
+        /// Creates a new Session with given login-cretendial and specific host address
+        /// </summary>
+        /// <param name="host">The host address</param>
+        /// <param name="username">The username</param>
+        /// <param name="password">The api password</param>
+        public Session(String host, String username, String password): this(new Uri(String.Format(HTTP_HOST_FORMAT, host)), username, password) {
+        }
 
         /// <summary>
         /// Creates a new Session with given login-password and specific host uri
         /// </summary>
         /// <param name="host">The host uri</param>
         /// <param name="password">The api password</param>
-		public Session(Uri host, String password): this(host, DEFAULT_USERNAME, password){
+        public Session(Uri host, String password): this(host, DEFAULT_USERNAME, password){
         }
 
-		/// <summary>
-		/// Creates a new Session with given login-cretendial and specific host uri
-		/// </summary>
-		/// <param name="host">The host uri</param>
-		/// <param name="username">The username</param>
-		/// <param name="password">The api password</param>
-		public Session(Uri host, String username, String password) {
-			Id = SessionId.Invalid;
-			Host = host;
-			Username = username;
-			Password = password;
+        /// <summary>
+        /// Creates a new Session with given login-cretendial and specific host uri
+        /// </summary>
+        /// <param name="host">The host uri</param>
+        /// <param name="username">The username</param>
+        /// <param name="password">The api password</param>
+        public Session(Uri host, String username, String password) {
+            Id = SessionId.Invalid;
+            Host = host;
+            Username = username;
+            Password = password;
 
-			IdleTimeout = DEFAULT_IDLE_TIMEOUT;
+            IdleTimeout = DEFAULT_IDLE_TIMEOUT;
 
             ObjectQueryMarshaller = new Lazy<ApiQueryMarshaller>(() => new ApiQueryMarshaller(this), LazyThreadSafetyMode.PublicationOnly);
 
-			LastActionTime = new LastActionTimer();
-		}
+            LastActionTime = new LastActionTimer();
+        }
+
+        #endregion
+
+        #region API methods
 
         /// <summary>
         /// Asynchronously invalidates the current session state
@@ -156,13 +148,13 @@ namespace FritzBoxApi {
         protected const String FIELD_NAME_SID = @"SID";
         protected const String FIELD_NAME_CHALLENGE = @"Challenge";
         protected const String ARG_NAME_RESPONSE = @"response";
-		protected const String ARG_NAME_USERNAME = @"username";
+        protected const String ARG_NAME_USERNAME = @"username";
 
         /// <summary>
         /// Asynchronously start a new api session 
         /// </summary>
         public async Task LoginAsync(CancellationToken ct) {
-			ct.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             // Request login challange
             XmlDocument xml = await ReadSessionDataAsync(Id, ct);
@@ -185,8 +177,8 @@ namespace FritzBoxApi {
             var request = (HttpWebRequest)WebRequest.Create(uri);
             var responseArgs = new Dictionary<String, String> { { ARG_NAME_RESPONSE, responseString } };
 
-			if(!String.IsNullOrEmpty(Username))
-				responseArgs.Add(ARG_NAME_USERNAME, Username);
+            if(!String.IsNullOrEmpty(Username))
+                responseArgs.Add(ARG_NAME_USERNAME, Username);
           
             // Quit this method if already cancelled
             ct.ThrowIfCancellationRequested();
@@ -315,117 +307,6 @@ namespace FritzBoxApi {
         }
 
         /// <summary>
-        /// A safe limit for <see cref="PartitionQueryItems"/>
-        /// </summary>
-        protected const int DEFAULT_PQI_MAX_LENGTH = 2083; // Used by IE, should be safe limit
-
-        /// <summary>
-        /// Partitions items used for query in groups of appropriate length, according to the their urlencoded query string being shorter than <see cref="DEFAULT_PQI_MAX_LENGTH"/> (typically a safe limit like <c>2083</c> characters)
-        /// </summary>
-        /// <param name="items">The items to partition</param>
-        /// <param name="prefix">The prefix string used to determine the absolute query string length</param>
-        /// <param name="count">The number of items</param>
-        /// <param name="length">The maximum length</param>
-        /// <returns>An enumeration of paritions</returns>
-        protected IEnumerable<IDictionary<String, String>> PartitionQueryItems(IEnumerable<String> items, String prefix, out int count, int length = DEFAULT_PQI_MAX_LENGTH) {
-            var result = new List<IDictionary<String, String>>();
-
-            var sb = new StringBuilder();
-
-            int i = 0;
-            Dictionary<String, String> current = null;
-
-            foreach(var item in items) {
-                int k = i++;
-
-                while(true) {
-                    if(current == null || sb.Length >= length) {
-                        result.Add(current = new Dictionary<String, String>());
-                        sb.Clear();
-                        sb.Append(prefix);
-                    }
-
-                    var key = String.Format(@"a{0}", k);
-
-                    sb.AppendUrlencodedParameter(key, item, false);
-
-                    if(sb.Length >= length) {
-                        // If unchecked, this would lead to an infinite loop if |prefix + "&" + Urlencode(key + "=" + item)| >= length
-                        if(current.Count <= 0)
-                            throw new Exception("Query parameter too long");
-
-                        continue; 
-                    }
-
-                    current.Add(key, item);
-
-                    break;
-                }
-            }
-
-            count = i;
-
-            return result;
-        }
-
-        protected static readonly Regex QUERY_JSON_RESPONSE_ITEM_REGEX = new Regex(@"""a(?<id>\d+)"": ""(?<value>.*?)"",?");
-
-        /// <summary>
-        /// Asynchronously loads a query-item partition
-        /// </summary>
-        /// <param name="partition">The partition to load</param>
-        /// <param name="urlStringBase">The base url string</param>
-        /// <param name="resultDict">The result dictionary</param>
-        /// <param name="ct">The CancellationToken used to cancel this async operation</param>
-        /// <param name="progress">The progress update handler</param>
-        /// <param name="total">The total number of items, needed for progress calculation</param>
-        /// <returns>A task performing this operation</returns>
-        protected async Task LoadPartition(IDictionary<String, String> partition, String urlStringBase, ConcurrentDictionary<UInt64, String> resultDict, CancellationToken ct, IProgress<Tuple<int,int>> progress, int total) {
-            var uri = new Uri(Host, urlStringBase + @"&" + HttpWebRequestExtension.FormUrlEncodeParameters(partition));
-            var request = (HttpWebRequest)WebRequest.Create(uri);
-            request.Method = HTTP_METHOD_GET;
-
-            // Quit this method if already cancelled
-            ct.ThrowIfCancellationRequested();
-
-            // Register the callback to a method that can unblock. 
-            // Dispose of the CancellationTokenRegistration object 
-            // after the callback has completed. 
-            using(ct.Register(request.Abort)) {
-
-                try {
-                    // Store response data in a seperate stream
-                    using(var content = await request.ReadResponseAsync()) {
-                        LastActionTime.Update();
-
-                        // Read stream data
-                        var text = await content.ReadStringAsync(ct); 
-
-                        // Parse JSON Items like
-                        //   "a0": "74.05.50"
-                        foreach(Match match in QUERY_JSON_RESPONSE_ITEM_REGEX.Matches(text)) {
-                            UInt64 p;
-
-                            if(!UInt64.TryParse(match.Groups[@"id"].Value, out p))
-                                throw new Exception("Invalid argument number");
-
-                            if(resultDict.ContainsKey(p))
-                                throw new Exception("Duplicate element");
-
-                            if(resultDict.TryAdd(p, match.Groups[@"value"].Value) && progress != null)
-                                progress.Report(Tuple.Create(resultDict.Count, total));
-                        }
-                    }
-                } catch(WebException e) {
-                    if(e.Status == WebExceptionStatus.RequestCanceled)
-                        ct.ThrowIfCancellationRequested();
-
-                    throw;
-                }
-            }
-        }
-
-        /// <summary>
         /// Query all members of <paramref name="queryObject"/> according to the behaviour of <see cref="ApiQueryMarshaller"/> asynchonously.
         /// <p>All members having a <see cref="QueryParameterAttribute"/> or <see cref="QueryPropagationAttribute"/> are queried using the api.</p>
         /// </summary>
@@ -481,6 +362,121 @@ namespace FritzBoxApi {
             }
 
             return responseText;
+        }
+
+        #endregion
+
+        #region Helper methods
+
+        /// <summary>
+        /// A safe limit for <see cref="PartitionQueryItems"/>
+        /// </summary>
+        protected const int DEFAULT_PQI_MAX_LENGTH = 2083; // Used by IE, should be safe limit
+
+        /// <summary>
+        /// Partitions items used for query in groups of appropriate length, according to the their urlencoded query string being shorter than <see cref="DEFAULT_PQI_MAX_LENGTH"/> (typically a safe limit like <c>2083</c> characters)
+        /// </summary>
+        /// <param name="items">The items to partition</param>
+        /// <param name="prefix">The prefix string used to determine the absolute query string length</param>
+        /// <param name="count">The number of items</param>
+        /// <param name="length">The maximum length</param>
+        /// <returns>An enumeration of paritions</returns>
+        protected IEnumerable<IDictionary<String, String>> PartitionQueryItems(IEnumerable<String> items, String prefix, out int count, int length = DEFAULT_PQI_MAX_LENGTH) {
+            var result = new List<IDictionary<String, String>>();
+
+            var sb = new StringBuilder();
+
+            int i = 0;
+            Dictionary<String, String> current = null;
+
+            foreach(var item in items) {
+                int k = i++;
+
+                while(true) {
+                    if(current == null || sb.Length >= length) {
+                        result.Add(current = new Dictionary<String, String>());
+                        sb.Clear();
+                        sb.Append(prefix);
+                    }
+
+                    var key = String.Format(@"a{0}", k);
+
+                    sb.AppendUrlencodedParameter(key, item, false);
+
+                    if(sb.Length >= length) {
+                        // If unchecked, this would lead to an infinite loop if |prefix + "&" + Urlencode(key + "=" + item)| >= length
+                        if(current.Count <= 0)
+                            throw new Exception("Query parameter too long");
+
+                        continue;
+                    }
+
+                    current.Add(key, item);
+
+                    break;
+                }
+            }
+
+            count = i;
+
+            return result;
+        }
+
+        protected static readonly Regex QUERY_JSON_RESPONSE_ITEM_REGEX = new Regex(@"""a(?<id>\d+)"": ""(?<value>.*?)"",?");
+
+        /// <summary>
+        /// Asynchronously loads a query-item partition
+        /// </summary>
+        /// <param name="partition">The partition to load</param>
+        /// <param name="urlStringBase">The base url string</param>
+        /// <param name="resultDict">The result dictionary</param>
+        /// <param name="ct">The CancellationToken used to cancel this async operation</param>
+        /// <param name="progress">The progress update handler</param>
+        /// <param name="total">The total number of items, needed for progress calculation</param>
+        /// <returns>A task performing this operation</returns>
+        protected async Task LoadPartition(IDictionary<String, String> partition, String urlStringBase, ConcurrentDictionary<UInt64, String> resultDict, CancellationToken ct, IProgress<Tuple<int, int>> progress, int total) {
+            var uri = new Uri(Host, urlStringBase + @"&" + HttpWebRequestExtension.FormUrlEncodeParameters(partition));
+            var request = (HttpWebRequest)WebRequest.Create(uri);
+            request.Method = HTTP_METHOD_GET;
+
+            // Quit this method if already cancelled
+            ct.ThrowIfCancellationRequested();
+
+            // Register the callback to a method that can unblock. 
+            // Dispose of the CancellationTokenRegistration object 
+            // after the callback has completed. 
+            using(ct.Register(request.Abort)) {
+
+                try {
+                    // Store response data in a seperate stream
+                    using(var content = await request.ReadResponseAsync()) {
+                        LastActionTime.Update();
+
+                        // Read stream data
+                        var text = await content.ReadStringAsync(ct);
+
+                        // Parse JSON Items like
+                        //   "a0": "74.05.50"
+                        foreach(Match match in QUERY_JSON_RESPONSE_ITEM_REGEX.Matches(text)) {
+                            UInt64 p;
+
+                            if(!UInt64.TryParse(match.Groups[@"id"].Value, out p))
+                                throw new Exception("Invalid argument number");
+
+                            if(resultDict.ContainsKey(p))
+                                throw new Exception("Duplicate element");
+
+                            if(resultDict.TryAdd(p, match.Groups[@"value"].Value) && progress != null)
+                                progress.Report(Tuple.Create(resultDict.Count, total));
+                        }
+                    }
+                } catch(WebException e) {
+                    if(e.Status == WebExceptionStatus.RequestCanceled)
+                        ct.ThrowIfCancellationRequested();
+
+                    throw;
+                }
+            }
         }
 
         /// <summary>
@@ -591,6 +587,8 @@ namespace FritzBoxApi {
 
             return String.Format(COMBINE_FORMAT, challenge, String.Concat(Array.ConvertAll(hash, x => x.ToString(@"x2")))); // Lowercase Base 16
         }
+
+        #endregion
 
         #region Inner classes
 
@@ -788,4 +786,26 @@ namespace FritzBoxApi {
 
         #endregion
     }
+
+    #region Exceptions
+
+    /// <summary>
+    /// The LoginFailedException is an exception to be thrown if the login-process fails.
+    /// </summary>
+    public class LoginFailedException : Exception {
+        protected const String MESSAGE = "The login to Fritz!Box-API has failed";
+
+        public LoginFailedException(): base(MESSAGE) {
+        }
+    }
+
+    /// <summary>
+    /// The InvalidSessionException is an exception to be thrown if the session is invalid, e.g. if rejected by Fritz!Box-Api.
+    /// </summary>
+    public class InvalidSessionException : Exception {
+        public InvalidSessionException(String message): base(message) {
+        }
+    }
+
+    #endregion
 }

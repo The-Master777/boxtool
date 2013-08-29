@@ -31,11 +31,11 @@ namespace FritzBoxApi {
         /// <param name="ct">The cancellation token used to cancel this operation</param>
         /// <returns>An api session</returns>
         public static async Task<Session> ConnectAsync(String host, String username, String password, CancellationToken ct) {
-			var session = new Session(host, username, password);
+            var session = new Session(host, username, password);
 
-			await session.LoginAsync(ct);
+            await session.LoginAsync(ct);
 
-			return session;
-		}
+            return session;
+        }
     }
 }
