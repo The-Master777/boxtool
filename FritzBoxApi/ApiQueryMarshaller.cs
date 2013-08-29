@@ -135,7 +135,7 @@ namespace FritzBoxApi {
 
             // B.2) Build converter dictionary
             var converters = converterMembers.ToDictionary(m => {
-                var n = MemberInfoCustomAttributeExtension.GetCustomAttribute<QueryValueConverter>(m).Name;
+                var n = m.GetCustomAttribute<QueryValueConverter>().Name;
 
                 if(String.IsNullOrEmpty(n))
                     n = m.Name;
@@ -147,7 +147,7 @@ namespace FritzBoxApi {
             var queryParameterProps = members.Where(x => Attribute.IsDefined(x, typeof(QueryParameterAttribute), true));
 
             // C.2) Build query list
-            var d = queryParameterProps.Select(m => new QueryParameterPropertyRecord(@object, MemberInfoCustomAttributeExtension.GetCustomAttribute<QueryParameterAttribute>(m), m, converters));
+            var d = queryParameterProps.Select(m => new QueryParameterPropertyRecord(@object, m.GetCustomAttribute<QueryParameterAttribute>(), m, converters));
 
             qpprList.AddRange(d);
 
