@@ -17,7 +17,7 @@ using System.Windows.Shapes;
 using System.Windows.Media.Animation;
 using FritzBoxApi;
 
-namespace WpfApplication1
+namespace DSLStatus
 {
     /// <summary>
     /// Interaktionslogik für MainWindow.xaml
