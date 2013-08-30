@@ -15,11 +15,7 @@ namespace FritzBoxApi {
         /// <param name="ct">The cancellation token used to cancel this operation</param>
         /// <returns>An api session</returns>
         public static async Task<Session> ConnectAsync(String host, String password, CancellationToken ct) {
-            var session = new Session(host, password);
-
-            await session.LoginAsync(ct);
-
-            return session;
+            return await ConnectAsync(new Session(host, password), ct);
         }
 
         /// <summary>
@@ -31,8 +27,10 @@ namespace FritzBoxApi {
         /// <param name="ct">The cancellation token used to cancel this operation</param>
         /// <returns>An api session</returns>
         public static async Task<Session> ConnectAsync(String host, String username, String password, CancellationToken ct) {
-            var session = new Session(host, username, password);
+             return await ConnectAsync(new Session(host, username, password), ct);
+        }
 
+        private static async Task<Session> ConnectAsync(Session session, CancellationToken ct) {
             await session.LoginAsync(ct);
 
             return session;

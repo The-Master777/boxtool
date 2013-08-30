@@ -237,25 +237,25 @@ namespace DSLStatus
 
         /* Declarative definition of values to query */
         public class ExampleQuery {
-            [QueryParameterAttribute(@"logic:status/nspver")]
+            [QueryParameter(@"logic:status/nspver")]
             public String Firmware { get; set; }
 
-            [QueryParameterAttribute(@"sar:status/DSP_Datapump_ver")]
+            [QueryParameter(@"sar:status/DSP_Datapump_ver")]
             public String DslDriver { get; set; }
 
-            [QueryParameterAttribute(@"sar:status/ATUC_vendor_ID")]
+            [QueryParameter(@"sar:status/ATUC_vendor_ID")]
             public String DslamVendor { get; set; }
 
-            [QueryParameterAttribute(@"sar:status/ATUC_vendor_version")]
+            [QueryParameter(@"sar:status/ATUC_vendor_version")]
             public String DslamVendorVersion { get; set; }
 
-            [QueryParameterAttribute(@"sar:status/dslam_VendorID")]
+            [QueryParameter(@"sar:status/dslam_VendorID")]
             public String DslamVendorId { get; set; }
 
-            [QueryParameterAttribute(@"sar:status/dslam_VersionNumber")]
+            [QueryParameter(@"sar:status/dslam_VersionNumber")]
             public String DslamVersion { get; set; }
 
-            [QueryParameterAttribute(@"sar:status/dslam_SerialNumber")]
+            [QueryParameter(@"sar:status/dslam_SerialNumber")]
             public String DslamSerialNumber { get; set; }
 
             [QueryPropagation]
@@ -270,13 +270,13 @@ namespace DSLStatus
             }
 
             public class BinData : BaseQueryObject {
-                [QueryParameterAttribute(@"sar:status/ds_snrArrayXML", "IntArrayConverter")]
+                [QueryParameter(@"sar:status/ds_snrArrayXML", "IntArrayConverter")]
                 public int[] Snr { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/bitsArrayXML", "IntArrayConverter")]
+                [QueryParameter(@"sar:status/bitsArrayXML", "IntArrayConverter")]
                 public int[] Bits { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/pilot", "IntConverter")]
+                [QueryParameter(@"sar:status/pilot", "IntConverter")]
                 public int PilotTone { get; set; }
 
                 public BinData() {
@@ -288,105 +288,105 @@ namespace DSLStatus
             }
 
             public class DslData : BaseQueryObject {
-                [QueryParameterAttribute(@"sar:status/exp_ds_max_rate", "IntConverter")]
+                [QueryParameter(@"sar:status/exp_ds_max_rate", "IntConverter")]
                 public int DsMaxDslamRate { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/exp_us_max_rate", "IntConverter")]
+                [QueryParameter(@"sar:status/exp_us_max_rate", "IntConverter")]
                 public int UsMaxDslamRate { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/exp_ds_min_rate", "IntConverter")]
+                [QueryParameter(@"sar:status/exp_ds_min_rate", "IntConverter")]
                 public int DsMinDslamRate { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/exp_us_min_rate", "IntConverter")]
+                [QueryParameter(@"sar:status/exp_us_min_rate", "IntConverter")]
                 public int UsMinDslamRate { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/ds_attainable", "IntConverter")]
+                [QueryParameter(@"sar:status/ds_attainable", "IntConverter")]
                 public int DsCapacity { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/us_attainable", "IntConverter")]
+                [QueryParameter(@"sar:status/us_attainable", "IntConverter")]
                 public int UsCapacity { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/dsl_ds_rate", "IntConverter")]
+                [QueryParameter(@"sar:status/dsl_ds_rate", "IntConverter")]
                 public int DsDataRate { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/dsl_us_rate", "IntConverter")]
+                [QueryParameter(@"sar:status/dsl_us_rate", "IntConverter")]
                 public int UsDataRate { get; set; }
 
 
-                [QueryParameterAttribute(@"sar:status/ds_path", "BooleanConverter")]
+                [QueryParameter(@"sar:status/ds_path", "BooleanConverter")]
                 public Boolean DsInterleaving { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/us_path", "BooleanConverter")]
+                [QueryParameter(@"sar:status/us_path", "BooleanConverter")]
                 public Boolean UsInterleaving { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/ds_delay", "IntConverter")]
+                [QueryParameter(@"sar:status/ds_delay", "IntConverter")]
                 public int DsDelay { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/us_delay", "IntConverter")]
+                [QueryParameter(@"sar:status/us_delay", "IntConverter")]
                 public int UsDelay { get; set; }
 
 
-                [QueryParameterAttribute(@"sar:status/exp_ds_olr_Bitswap", "BooleanConverter")]
+                [QueryParameter(@"sar:status/exp_ds_olr_Bitswap", "BooleanConverter")]
                 public Boolean DsBitswap { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/exp_us_olr_Bitswap", "BooleanConverter")]
+                [QueryParameter(@"sar:status/exp_us_olr_Bitswap", "BooleanConverter")]
                 public Boolean UsBitswap { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/exp_ds_olr_SeamlessRA", "BooleanConverter")]
+                [QueryParameter(@"sar:status/exp_ds_olr_SeamlessRA", "BooleanConverter")]
                 public Boolean DsSra { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/exp_ds_olr_SeamlessRA", "BooleanConverter")]
+                [QueryParameter(@"sar:status/exp_ds_olr_SeamlessRA", "BooleanConverter")]
                 public Boolean UsSra { get; set; }
 
 
-                [QueryParameterAttribute(@"sar:status/exp_ds_inp_act", "FloatConverter")]
+                [QueryParameter(@"sar:status/exp_ds_inp_act", "FloatConverter")]
                 public Single DsInp { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/exp_us_inp_act", "FloatConverter")]
+                [QueryParameter(@"sar:status/exp_us_inp_act", "FloatConverter")]
                 public Single UsInp { get; set; }
 
 
-                [QueryParameterAttribute(@"sar:status/ds_margin", "IntConverter")]
+                [QueryParameter(@"sar:status/ds_margin", "IntConverter")]
                 public int DsSnrm { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/us_margin", "IntConverter")]
+                [QueryParameter(@"sar:status/us_margin", "IntConverter")]
                 public int UsSnrm { get; set; }
 
 
-                [QueryParameterAttribute(@"sar:status/ds_attenuation", "IntConverter")]
+                [QueryParameter(@"sar:status/ds_attenuation", "IntConverter")]
                 public int DsAttenuation { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/us_attenuation", "IntConverter")]
+                [QueryParameter(@"sar:status/us_attenuation", "IntConverter")]
                 public int UsAttenuation { get; set; }
 
 
-                [QueryParameterAttribute(@"sar:status/ds_powercutback", "IntConverter")]
+                [QueryParameter(@"sar:status/ds_powercutback", "IntConverter")]
                 public int DsPcb { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/us_powercutback", "IntConverter")]
+                [QueryParameter(@"sar:status/us_powercutback", "IntConverter")]
                 public int UsPcb { get; set; }
 
 
-                [QueryParameterAttribute(@"sar:status/exp_ds_max_nom_atp", "FloatConverter")]
+                [QueryParameter(@"sar:status/exp_ds_max_nom_atp", "FloatConverter")]
                 public Single DsAtp { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/exp_us_max_nom_atp", "FloatConverter")]
+                [QueryParameter(@"sar:status/exp_us_max_nom_atp", "FloatConverter")]
                 public Single UsAtp { get; set; }
 
 
-                [QueryParameterAttribute(@"sar:status/dsl_tone_set")]
+                [QueryParameter(@"sar:status/dsl_tone_set")]
                 public String DslToneSet { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/dsl_carrier_state", "IntConverter")]
+                [QueryParameter(@"sar:status/dsl_carrier_state", "IntConverter")]
                 public int CarrierState { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/dsl_train_state", "IntConverter")]
+                [QueryParameter(@"sar:status/dsl_train_state", "IntConverter")]
                 public int TrainState { get; set; }
 
-                [QueryParameterAttribute(@"sar:status/trained_mode")]
+                [QueryParameter(@"sar:status/trained_mode")]
                 public String TrainedMode { get; set; }
 
-                [QueryParameterAttribute(@"sar:settings/DownstreamMarginOffset", "IntConverter")]
+                [QueryParameter(@"sar:settings/DownstreamMarginOffset", "IntConverter")]
                 public int DownstreamSnrOffset { get; set; }
             }
         }
