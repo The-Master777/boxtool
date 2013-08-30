@@ -128,23 +128,6 @@ namespace FritzBoxApi {
 
         #region API methods
 
-        /// <summary>
-        /// Asynchronously invalidates the current session state
-        /// </summary>
-        /// <returns>Validity of the current session</returns>
-        public async Task<Boolean> InvalidateAsync(CancellationToken ct) {
-            if(!IsStarted)
-                return false;
-
-            var xml = await ReadSessionDataAsync(Id, ct);
-
-            var sid = new SessionId(xml.DocumentElement[FIELD_NAME_SID].InnerText);
-
-            LastActionTime.Update();
-
-            return sid.IsValid;
-        }
-
         protected const String FIELD_NAME_SID = @"SID";
         protected const String FIELD_NAME_CHALLENGE = @"Challenge";
         protected const String ARG_NAME_RESPONSE = @"response";
@@ -364,6 +347,23 @@ namespace FritzBoxApi {
             return responseText;
         }
 
+        /// <summary>
+        /// Asynchronously invalidates the current session state
+        /// </summary>
+        /// <returns>Validity of the current session</returns>
+        public async Task<Boolean> InvalidateAsync(CancellationToken ct) {
+            if(!IsStarted)
+                return false;
+
+            var xml = await ReadSessionDataAsync(Id, ct);
+
+            var sid = new SessionId(xml.DocumentElement[FIELD_NAME_SID].InnerText);
+
+            LastActionTime.Update();
+
+            return sid.IsValid;
+        }
+
         #endregion
 
         #region Helper methods
@@ -489,7 +489,7 @@ namespace FritzBoxApi {
             if(!IsStarted)
                 throw new InvalidSessionException("Session not started");
 
-            if(IdleTimeout > TimeSpan.Zero && DateTime.Now - LastActionTime > IdleTimeout) {
+            if(LastActionTime.TimeoutOccurred(IdleTimeout)) {
                 // Check timeout
                 if(await InvalidateAsync(ct))
                     return;
@@ -624,7 +624,7 @@ namespace FritzBoxApi {
             /// </summary>
             /// <param name="sid">Id to check</param>
             /// <returns>Validity of the ID</returns>
-            protected Boolean ValidateId(String sid) {
+            protected static Boolean ValidateId(String sid) {
                 return !(String.IsNullOrEmpty(sid) || sid == INVALIDSID || IsZero(sid));
             }
 
@@ -633,7 +633,7 @@ namespace FritzBoxApi {
             /// </summary>
             /// <param name="str">String to compare</param>
             /// <returns><c>true</c>, if the string given is zero</returns>
-            protected Boolean IsZero(String str) {
+            protected static Boolean IsZero(String str) {
                 UInt64 number;
 
                 if(!UInt64.TryParse(str, out number))
@@ -781,6 +781,23 @@ namespace FritzBoxApi {
             /// </summary>
             public void Reset() {
                 Value = RESET_VALUE;
+            }
+
+            /// <summary>
+            /// Determines whether a timeout occurred by comparing the specified timeout with this instance
+            /// </summary>
+            /// <param name="timeout">The timeout value used for comparison</param>
+            /// <returns><c>true</c> if this instance timed out (relative to the specified timeout); otherwise, <c>false</c></returns>
+            public Boolean TimeoutOccurred(TimeSpan timeout) {
+                if(timeout > TimeSpan.Zero)
+                    return false;
+
+                Lock.EnterReadLock();
+                try {
+                    return DateTime.Now - _value > timeout;
+                } finally {
+                    Lock.ExitReadLock();
+                }
             }
         }
 
