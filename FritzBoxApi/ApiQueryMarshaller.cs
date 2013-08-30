@@ -94,14 +94,14 @@ namespace FritzBoxApi {
             for(int i = 0; i < d.Count; i++) {
                 // Set new value 
                 var m = d[i].Member;
-
+                var o = d[i].Object;
                 var v = d[i].Convert(response[i]);
 
                 // Set value
                 if(m is PropertyInfo) {
-                    (m as PropertyInfo).SetValue(d[i].Object, v);
+                    (m as PropertyInfo).SetValue(o, v);
                 } else if(m is FieldInfo) {
-                    (m as FieldInfo).SetValue(d[i].Object, v);
+                    (m as FieldInfo).SetValue(o, v);
                 }
             }
         }
