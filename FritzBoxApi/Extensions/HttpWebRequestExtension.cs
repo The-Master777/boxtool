@@ -15,7 +15,7 @@ namespace FritzBoxApi.Extensions {
                     if(responseStream == null)
                         throw new IOException("Failed while reading the response data");
 
-                    await responseStream.CopyToAsync(stream);
+                    await responseStream.CopyToAsync(stream); // TODO: Support cancellation
                 }
             }
         } 

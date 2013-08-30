@@ -8,13 +8,16 @@ using System.Threading.Tasks;
 using System.Xml;
 
 namespace FritzBoxApi.Extensions {
+    /// <summary>
+    /// The Stream read extension class is providing utility methods for reading a stream's content conveniently
+    /// </summary>
     public static class StreamReadExtension {
         /// <summary>
         /// Asynchonously read the <paramref name="stream"/> as String using UTF8 as default encoding, after byteOrderMark-detection of encoding.
         /// </summary>
         /// <param name="stream">The stream to read</param>
         /// <param name="ct">The cancellation token used to cancel this operation</param>
-        /// <returns></returns>
+        /// <returns>The stream's content read as string</returns>
         public static async Task<string> ReadStringAsync(this Stream stream, CancellationToken ct) {
             return await ReadStringAsync(stream, Encoding.UTF8, true, ct);
         }
